@@ -1,11 +1,10 @@
-import os
 import streamlit as st
-from openai import OpenAI
+import g4f
 
 st.set_page_config(page_title="TrackStyler AI", page_icon="🎵", layout="wide")
 
 st.title("🎵 TrackStyler AI")
-st.write("Style your lyrics into modern rhythm.")
+st.write("Style your lyrics into modern rhythm — 100% Free Version.")
 st.write("---")
 
 col1, col2 = st.columns(2)
@@ -24,7 +23,6 @@ with col2:
         else:
             with st.spinner("AI is processing your Kazakh lyrics..."):
                 try:
-                    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
                     system_instruction = (
                         "You are a professional Kazakh music producer and track-maker. "
                         "Transform the user's provided Kazakh lyrics into a modern, rhythmic song format. "
@@ -34,17 +32,19 @@ with col2:
                         "3. Equalize the syllable count in lines so it is very easy to sing over a beat.\n"
                         "4. Output ONLY the finalized Kazakh lyrics."
                     )
-                    response = client.chat.completions.create(
-                        model="gpt-4o",
+                    
+                    # Тегін провайдерлер арқылы GPT-4o немесе балама модельді шақыру
+                    response = g4f.ChatCompletion.create(
+                        model=g4f.models.gpt_4o,
                         messages=[
                             {"role": "system", "content": system_instruction},
                             {"role": "user", "content": f"Style: {style_option}\nLyrics:\n{user_lyrics}"}
-                        ],
-                        temperature=0.7
+                        ]
                     )
+                    
                     st.success("Done!")
-                    st.code(response.choices[0].message.content, language="text")
+                    st.code(response, language="text")
                 except Exception as e:
-                    st.error(f"Error: {e}")
+                    st.error(f"Error: {e}. Please try again.")
     else:
         st.info("Processed lyrics will appear here.")
