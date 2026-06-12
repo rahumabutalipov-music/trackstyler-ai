@@ -1,10 +1,11 @@
+import os
 import streamlit as st
-import g4f
+import google.generativeai as genai
 
 st.set_page_config(page_title="TrackStyler AI", page_icon="🎵", layout="wide")
 
 st.title("🎵 TrackStyler AI")
-st.write("Style your lyrics into modern rhythm — 100% Free Version.")
+st.write("Style your lyrics into modern rhythm — Stable Free Version.")
 st.write("---")
 
 col1, col2 = st.columns(2)
@@ -23,28 +24,29 @@ with col2:
         else:
             with st.spinner("AI is processing your Kazakh lyrics..."):
                 try:
-                    system_instruction = (
-                        "You are a professional Kazakh music producer and track-maker. "
-                        "Transform the user's provided Kazakh lyrics into a modern, rhythmic song format. "
-                        "Strict Rules:\n"
-                        "1. Do NOT use old poetic words like 'asqar tau' or 'adal nanmen'. Keep it modern.\n"
-                        "2. Use street-level, trending, and contemporary Kazakh language with high-quality rhyming.\n"
-                        "3. Equalize the syllable count in lines so it is very easy to sing over a beat.\n"
-                        "4. Output ONLY the finalized Kazakh lyrics."
-                    )
-                    
-                    # Тегін провайдерлер арқылы GPT-4o немесе балама модельді шақыру
-                    response = g4f.ChatCompletion.create(
-                        model=g4f.models.gpt_4o,
-                        messages=[
-                            {"role": "system", "content": system_instruction},
-                            {"role": "user", "content": f"Style: {style_option}\nLyrics:\n{user_lyrics}"}
-                        ]
-                    )
-                    
-                    st.success("Done!")
-                    st.code(response, language="text")
+                    # Gemini баптаулары
+                    api_key = os.environ.get("GEMINI_API_KEY")
+                    if not api_key:
+                        st.error("Missing GEMINI_API_KEY in Secrets!")
+                    else:
+                        genai.configure(api_key=api_key)
+                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        
+                        system_instruction = (
+                            "You are a professional Kazakh music producer and track-maker. "
+                            f"Transform the user's provided Kazakh lyrics into a modern, rhythmic {style_option} song format. "
+                            "Strict Rules:\n"
+                            "1. Do NOT use old, overly traditional poetic words (like 'asqar tau' or 'adal nanmen'). Keep it raw and modern.\n"
+                            "2. Use street-level, trending, and contemporary Kazakh language with high-quality rhyming.\n"
+                            "3. Equalize the syllable count in lines so it fits perfectly over a beat.\n"
+                            "4. Output ONLY the finalized Kazakh lyrics without extra text."
+                        )
+                        
+                        response = model.generate_content(f"{system_instruction}\n\nUser Lyrics:\n{user_lyrics}")
+                        
+                        st.success("Done!")
+                        st.code(response.text, language="text")
                 except Exception as e:
-                    st.error(f"Error: {e}. Please try again.")
+                    st.error(f"Error: {e}")
     else:
         st.info("Processed lyrics will appear here.")
