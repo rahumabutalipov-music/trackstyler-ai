@@ -30,7 +30,7 @@ with col2:
                         st.error("Missing GEMINI_API_KEY in Secrets!")
                     else:
                         genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        model = genai.GenerativeModel('gemini-2.5-flash')
                         
                         system_instruction = (
                             "You are a professional Kazakh music producer and track-maker. "
