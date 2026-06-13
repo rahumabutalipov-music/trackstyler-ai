@@ -18,7 +18,7 @@ with col1:
     style_option = st.selectbox("Музыкалық стильді таңдаңыз:", [
         "Домбыра / Этно-Acoustic (Терең мағыналы)", 
         "Той стилі / Toi Synth (Хит, билейтін)", 
-        "Клубный / EDM Pop (Заманауи, динамикалық)",
+        "Клубный / EDM Pop (Заманауи, dynamic)",
         "Q-Pop / Modern Pop", 
         "Street-level / Rap"
     ])
@@ -62,7 +62,7 @@ with col2:
                             "Сіз — кәсіби қазақстандық хитмейкер әрі ақынсыз. "
                             f"Пайдаланушы берген мәтінді {style_option} стиліне сай өңдеңіз. "
                             "ҚАТАҢ ТАЛАПТАР:\n"
-                            "1. Өлеңнің ұйқасына (рифма) өте қатты мән беріңіз, buyn sandaryn teñestiñiz, ән айтуға ыңғайлы ырғаққа келтіріңіз.\n"
+                            "1. Өлеңнің ұйқасына (рифма) өте қатты мән беріңіз, буын сандарын теңестіріңіз, ән айтуға ыңғайлы ырғаққа келтіріңіз.\n"
                             "2. Мәтінді қарапайым қалдырмай, әсерлі, терең мағыналы әдеби сөздермен, көркем метафоралармен және әдемі терминдермен байытыңыз.\n"
                             "3. Сезімді, астарлы мағынаны, тыңдарманның жүрегін қозғайтын көркемдікті жеткізіңіз.\n"
                             "4. Жауап ретінде ТЕК ҚАНА дайын өлең мәтінін шығарыңыз, артық сөз жазбаңыз."
@@ -74,20 +74,21 @@ with col2:
                 except Exception as e:
                     st.error(f"Мәтін қатесі: {e}")
             
-            # 2. Нағыз қазақша музыка шығару бөлімі (Тұрақты ресми клиент)
+            # 2. Нағыз қазақша музыка шығару бөлімі (Түзетілген жаңа функция)
             with st.spinner("🎵 Сіз таңдаған стильде ерекше авторлық минус жасалуда (10-30 сек)..."):
                 try:
-                    client = InferenceClient(
-                        model="facebook/musicgen-small",
-                        token="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"
-                    )
+                    client = InferenceClient(token="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")
                     
-                    audio_bytes = client.text_to_audio(prompt_input)
+                    # Hugging Face-тің жаңа audio_generation функциясы
+                    audio_bytes = client.audio_generation(
+                        prompt=prompt_input,
+                        model="facebook/musicgen-small"
+                    )
                     
                     st.success("🎵 Сіздің 100% ТЕГІН және таза минусыңыз дайын!")
                     st.audio(audio_bytes, format="audio/wav")
                     
                 except Exception as e:
-                    st.error(f"Музыка қатесі: {e}. Парақшаны қайта жүктеп (Reboot) көріңіз.")
+                    st.error(f"Музыка қатесі: {e}. Сыртқы сервер бос емес болуы мүмкін, сәлден соң қайталаңыз.")
     else:
         st.info("Дайын өлең мәтіні мен музыкалық плеер осы жерде пайда болады.")
